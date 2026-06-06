@@ -13,22 +13,34 @@ install:
     cd tools/schema-gen && npm install
     uv sync
 
-# Step 1: pinned pi TS types -> schema/agent-session.schema.json
+# Step 1: pinned pi TS types -> schema/agent-session.schema.json (raw, committed)
 schema:
     cd tools/schema-gen && npm run --silent schema
 
-# Step 2: schema -> src/pi_agent_events/models.py (naive; anonymous names for now)
-models:
+# Step 2: inject stable class-name titles -> build/patched.schema.json (derived)
+patch:
+    mkdir -p build
+    uv run python tools/patch_schema.py schema/agent-session.schema.json build/patched.schema.json
+
+# Step 3: patched schema -> src/pi_agent_events/models.py (stable names via titles)
+models: patch
     uv run datamodel-codegen \
-      --input schema/agent-session.schema.json \
+      --input build/patched.schema.json \
       --input-file-type jsonschema \
       --output-model-type pydantic_v2.BaseModel \
+      --use-title-as-name \
+      --collapse-root-models \
+      --class-name AgentSessionEvent \
       --disable-timestamp \
       --output src/pi_agent_events/models.py
 
-# Full pipeline: regenerate schema, then models.
+# Full pipeline: regenerate schema, then patch + models.
 gen: schema models
 
 # Typecheck the TS re-export (proves AgentSessionEvent resolves through index.ts).
 typecheck:
     cd tools/schema-gen && npm run --silent typecheck
+
+# Run the test suite (parses the committed transcript through the models).
+test:
+    uv run pytest -q
