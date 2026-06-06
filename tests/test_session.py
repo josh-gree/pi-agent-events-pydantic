@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from pi_agent_events.models import AgentSessionEvent
+from pi_agent_events import AgentSessionEvent
 
 SESSION = Path(__file__).resolve().parent.parent / "sessions" / "local.jsonl"
 ENVELOPES = {"response", "extension_ui_request"}
