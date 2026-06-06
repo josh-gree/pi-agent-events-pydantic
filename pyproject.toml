@@ -1,0 +1,17 @@
+[project]
+name = "pi-agent-events-pydantic"
+version = "0.0.0"
+description = "Pydantic v2 models for pi's AgentEvent stdout stream, generated from a pinned pi version."
+requires-python = ">=3.10"
+dependencies = ["pydantic>=2.10"]
+
+[project.optional-dependencies]
+codegen = ["datamodel-code-generator>=0.27"]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

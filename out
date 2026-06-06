@@ -1,0 +1,1030 @@
+{
+  "model": "AgentStartEvent",
+  "data": {
+    "type": "agent_start"
+  }
+}
+{
+  "model": "TurnStartEvent",
+  "data": {
+    "type": "turn_start"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Create /tmp/pi-notes.txt with the text hello typed world, then tell me in one sentence what you did.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "role": "user",
+      "timestamp": 1780670702697.0
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Create /tmp/pi-notes.txt with the text hello typed world, then tell me in one sentence what you did.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "role": "user",
+      "timestamp": 1780670702697.0
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": null,
+      "responseModel": null,
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670702722.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0,
+          "output": 0.0,
+          "total": 0.0
+        },
+        "input": 0.0,
+        "output": 0.0,
+        "totalTokens": 0.0
+      }
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "The user wants me to create a file /tmp/pi-notes.txt with the text \"hello typed world\" and then tell them what I did in one sentence.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "arguments": {
+            "path": "/tmp/pi-notes.txt",
+            "content": "hello typed world"
+          },
+          "id": "call_03bcd1e4375544eea8f882dc",
+          "name": "write",
+          "thoughtSignature": null,
+          "type": "toolCall"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670703-aglfS6AXXy3NBXcdIBYf",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "toolUse",
+      "timestamp": 1780670702722.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0001498092,
+          "output": 0.0000200532,
+          "total": 0.0001698624
+        },
+        "input": 1524.0,
+        "output": 102.0,
+        "totalTokens": 1626.0
+      }
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "ToolExecutionStartEvent",
+  "data": {
+    "args": {
+      "path": "/tmp/pi-notes.txt",
+      "content": "hello typed world"
+    },
+    "toolCallId": "call_03bcd1e4375544eea8f882dc",
+    "toolName": "write",
+    "type": "tool_execution_start"
+  }
+}
+{
+  "model": "ToolExecutionEndEvent",
+  "data": {
+    "isError": false,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt"
+        }
+      ]
+    },
+    "toolCallId": "call_03bcd1e4375544eea8f882dc",
+    "toolName": "write",
+    "type": "tool_execution_end"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "details": null,
+      "isError": false,
+      "role": "toolResult",
+      "timestamp": 1780670706450.0,
+      "toolCallId": "call_03bcd1e4375544eea8f882dc",
+      "toolName": "write"
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "details": null,
+      "isError": false,
+      "role": "toolResult",
+      "timestamp": 1780670706450.0,
+      "toolCallId": "call_03bcd1e4375544eea8f882dc",
+      "toolName": "write"
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "TurnEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "The user wants me to create a file /tmp/pi-notes.txt with the text \"hello typed world\" and then tell them what I did in one sentence.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "arguments": {
+            "path": "/tmp/pi-notes.txt",
+            "content": "hello typed world"
+          },
+          "id": "call_03bcd1e4375544eea8f882dc",
+          "name": "write",
+          "thoughtSignature": null,
+          "type": "toolCall"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670703-aglfS6AXXy3NBXcdIBYf",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "toolUse",
+      "timestamp": 1780670702722.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0001498092,
+          "output": 0.0000200532,
+          "total": 0.0001698624
+        },
+        "input": 1524.0,
+        "output": 102.0,
+        "totalTokens": 1626.0
+      }
+    },
+    "toolResults": [
+      {
+        "content": [
+          {
+            "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "details": null,
+        "isError": false,
+        "role": "toolResult",
+        "timestamp": 1780670706450.0,
+        "toolCallId": "call_03bcd1e4375544eea8f882dc",
+        "toolName": "write"
+      }
+    ],
+    "type": "turn_end"
+  }
+}
+{
+  "model": "TurnStartEvent",
+  "data": {
+    "type": "turn_start"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": null,
+      "responseModel": null,
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670706451.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0,
+          "output": 0.0,
+          "total": 0.0
+        },
+        "input": 0.0,
+        "output": 0.0,
+        "totalTokens": 0.0
+      }
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "Done. Now I just need to tell them what I did in one sentence.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "text": "I created the file `/tmp/pi-notes.txt` containing the text \"hello typed world\".",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670706-oKvr5n5Rr5a6k1DeYhYX",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670706451.0,
+      "usage": {
+        "cacheRead": 512.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0000100864,
+          "cacheWrite": 0.0,
+          "input": 0.0001106858,
+          "output": 0.0000072742,
+          "total": 0.00012804640000000001
+        },
+        "input": 1126.0,
+        "output": 37.0,
+        "totalTokens": 1675.0
+      }
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "TurnEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "Done. Now I just need to tell them what I did in one sentence.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "text": "I created the file `/tmp/pi-notes.txt` containing the text \"hello typed world\".",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670706-oKvr5n5Rr5a6k1DeYhYX",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670706451.0,
+      "usage": {
+        "cacheRead": 512.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0000100864,
+          "cacheWrite": 0.0,
+          "input": 0.0001106858,
+          "output": 0.0000072742,
+          "total": 0.00012804640000000001
+        },
+        "input": 1126.0,
+        "output": 37.0,
+        "totalTokens": 1675.0
+      }
+    },
+    "toolResults": [],
+    "type": "turn_end"
+  }
+}
+{
+  "model": "AgentEndEvent",
+  "data": {
+    "messages": [
+      {
+        "content": [
+          {
+            "text": "Create /tmp/pi-notes.txt with the text hello typed world, then tell me in one sentence what you did.",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "role": "user",
+        "timestamp": 1780670702697.0
+      },
+      {
+        "api": "openai-completions",
+        "content": [
+          {
+            "redacted": null,
+            "thinking": "The user wants me to create a file /tmp/pi-notes.txt with the text \"hello typed world\" and then tell them what I did in one sentence.",
+            "thinkingSignature": "reasoning",
+            "type": "thinking"
+          },
+          {
+            "arguments": {
+              "path": "/tmp/pi-notes.txt",
+              "content": "hello typed world"
+            },
+            "id": "call_03bcd1e4375544eea8f882dc",
+            "name": "write",
+            "thoughtSignature": null,
+            "type": "toolCall"
+          }
+        ],
+        "diagnostics": null,
+        "errorMessage": null,
+        "model": "deepseek/deepseek-v4-flash",
+        "provider": "openrouter",
+        "responseId": "gen-1780670703-aglfS6AXXy3NBXcdIBYf",
+        "responseModel": "deepseek/deepseek-v4-flash-20260423",
+        "role": "assistant",
+        "stopReason": "toolUse",
+        "timestamp": 1780670702722.0,
+        "usage": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "cost": {
+            "cacheRead": 0.0,
+            "cacheWrite": 0.0,
+            "input": 0.0001498092,
+            "output": 0.0000200532,
+            "total": 0.0001698624
+          },
+          "input": 1524.0,
+          "output": 102.0,
+          "totalTokens": 1626.0
+        }
+      },
+      {
+        "content": [
+          {
+            "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "details": null,
+        "isError": false,
+        "role": "toolResult",
+        "timestamp": 1780670706450.0,
+        "toolCallId": "call_03bcd1e4375544eea8f882dc",
+        "toolName": "write"
+      },
+      {
+        "api": "openai-completions",
+        "content": [
+          {
+            "redacted": null,
+            "thinking": "Done. Now I just need to tell them what I did in one sentence.",
+            "thinkingSignature": "reasoning",
+            "type": "thinking"
+          },
+          {
+            "text": "I created the file `/tmp/pi-notes.txt` containing the text \"hello typed world\".",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "diagnostics": null,
+        "errorMessage": null,
+        "model": "deepseek/deepseek-v4-flash",
+        "provider": "openrouter",
+        "responseId": "gen-1780670706-oKvr5n5Rr5a6k1DeYhYX",
+        "responseModel": "deepseek/deepseek-v4-flash-20260423",
+        "role": "assistant",
+        "stopReason": "stop",
+        "timestamp": 1780670706451.0,
+        "usage": {
+          "cacheRead": 512.0,
+          "cacheWrite": 0.0,
+          "cost": {
+            "cacheRead": 0.0000100864,
+            "cacheWrite": 0.0,
+            "input": 0.0001106858,
+            "output": 0.0000072742,
+            "total": 0.00012804640000000001
+          },
+          "input": 1126.0,
+          "output": 37.0,
+          "totalTokens": 1675.0
+        }
+      }
+    ],
+    "type": "agent_end",
+    "willRetry": false
+  }
+}
+{
+  "model": "AgentStartEvent",
+  "data": {
+    "type": "agent_start"
+  }
+}
+{
+  "model": "TurnStartEvent",
+  "data": {
+    "type": "turn_start"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Now rewrite the contents of /tmp/pi-notes.txt so the letters alternate upper and lower case, like 'JoShUa'.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "role": "user",
+      "timestamp": 1780670708857.0
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Now rewrite the contents of /tmp/pi-notes.txt so the letters alternate upper and lower case, like 'JoShUa'.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "role": "user",
+      "timestamp": 1780670708857.0
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": null,
+      "responseModel": null,
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670708858.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0,
+          "output": 0.0,
+          "total": 0.0
+        },
+        "input": 0.0,
+        "output": 0.0,
+        "totalTokens": 0.0
+      }
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "The user wants me to rewrite /tmp/pi-notes.txt so the letters alternate upper and lower case. The current content is \"hello typed world\". Let me apply alternating case starting with uppercase for 'h' (or lowercase? The example 'JoShUa' starts with uppercase J, then lowercase o, then uppercase S, etc.).\n\nSo \"hello typed world\" would become:\nh -> H\ne -> e\nl -> L\nl -> l\no -> O\n(space) -> (space)\nt -> T\ny -> y\np -> P\ne -> e\nd -> D\n(space) -> (space)\nw -> W\no -> o\nr -> R\nl -> l\nd -> D\n\nResult: \"HeLlO TyPeD WoRlD\"\n\nLet me write that.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "arguments": {
+            "content": "HeLlO TyPeD WoRlD",
+            "path": "/tmp/pi-notes.txt"
+          },
+          "id": "call_ce2eb8de64e3475b8e001d57",
+          "name": "write",
+          "thoughtSignature": null,
+          "type": "toolCall"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670708-jxxwZDHEqDAiTlREsNXs",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "toolUse",
+      "timestamp": 1780670708858.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0001674049,
+          "output": 0.0000485602,
+          "total": 0.0002159651
+        },
+        "input": 1703.0,
+        "output": 247.0,
+        "totalTokens": 1950.0
+      }
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "ToolExecutionStartEvent",
+  "data": {
+    "args": {
+      "content": "HeLlO TyPeD WoRlD",
+      "path": "/tmp/pi-notes.txt"
+    },
+    "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+    "toolName": "write",
+    "type": "tool_execution_start"
+  }
+}
+{
+  "model": "ToolExecutionEndEvent",
+  "data": {
+    "isError": false,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt"
+        }
+      ]
+    },
+    "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+    "toolName": "write",
+    "type": "tool_execution_end"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "details": null,
+      "isError": false,
+      "role": "toolResult",
+      "timestamp": 1780670714306.0,
+      "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+      "toolName": "write"
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "content": [
+        {
+          "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "details": null,
+      "isError": false,
+      "role": "toolResult",
+      "timestamp": 1780670714306.0,
+      "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+      "toolName": "write"
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "TurnEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "The user wants me to rewrite /tmp/pi-notes.txt so the letters alternate upper and lower case. The current content is \"hello typed world\". Let me apply alternating case starting with uppercase for 'h' (or lowercase? The example 'JoShUa' starts with uppercase J, then lowercase o, then uppercase S, etc.).\n\nSo \"hello typed world\" would become:\nh -> H\ne -> e\nl -> L\nl -> l\no -> O\n(space) -> (space)\nt -> T\ny -> y\np -> P\ne -> e\nd -> D\n(space) -> (space)\nw -> W\no -> o\nr -> R\nl -> l\nd -> D\n\nResult: \"HeLlO TyPeD WoRlD\"\n\nLet me write that.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "arguments": {
+            "content": "HeLlO TyPeD WoRlD",
+            "path": "/tmp/pi-notes.txt"
+          },
+          "id": "call_ce2eb8de64e3475b8e001d57",
+          "name": "write",
+          "thoughtSignature": null,
+          "type": "toolCall"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670708-jxxwZDHEqDAiTlREsNXs",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "toolUse",
+      "timestamp": 1780670708858.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0001674049,
+          "output": 0.0000485602,
+          "total": 0.0002159651
+        },
+        "input": 1703.0,
+        "output": 247.0,
+        "totalTokens": 1950.0
+      }
+    },
+    "toolResults": [
+      {
+        "content": [
+          {
+            "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "details": null,
+        "isError": false,
+        "role": "toolResult",
+        "timestamp": 1780670714306.0,
+        "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+        "toolName": "write"
+      }
+    ],
+    "type": "turn_end"
+  }
+}
+{
+  "model": "TurnStartEvent",
+  "data": {
+    "type": "turn_start"
+  }
+}
+{
+  "model": "MessageStartEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": null,
+      "responseModel": null,
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670714306.0,
+      "usage": {
+        "cacheRead": 0.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "input": 0.0,
+          "output": 0.0,
+          "total": 0.0
+        },
+        "input": 0.0,
+        "output": 0.0,
+        "totalTokens": 0.0
+      }
+    },
+    "type": "message_start"
+  }
+}
+{
+  "model": "MessageEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "Done. I replaced the content with alternating case.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "text": "Done! I rewrote `/tmp/pi-notes.txt` with alternating upper/lower case: `HeLlO TyPeD WoRlD`.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670714-1pt1aX56EEqj7tt4GveG",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670714306.0,
+      "usage": {
+        "cacheRead": 1280.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.000025216,
+          "cacheWrite": 0.0,
+          "input": 0.0000699896,
+          "output": 0.0000086504,
+          "total": 0.00010385599999999999
+        },
+        "input": 712.0,
+        "output": 44.0,
+        "totalTokens": 2036.0
+      }
+    },
+    "type": "message_end"
+  }
+}
+{
+  "model": "TurnEndEvent",
+  "data": {
+    "message": {
+      "api": "openai-completions",
+      "content": [
+        {
+          "redacted": null,
+          "thinking": "Done. I replaced the content with alternating case.",
+          "thinkingSignature": "reasoning",
+          "type": "thinking"
+        },
+        {
+          "text": "Done! I rewrote `/tmp/pi-notes.txt` with alternating upper/lower case: `HeLlO TyPeD WoRlD`.",
+          "textSignature": null,
+          "type": "text"
+        }
+      ],
+      "diagnostics": null,
+      "errorMessage": null,
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "openrouter",
+      "responseId": "gen-1780670714-1pt1aX56EEqj7tt4GveG",
+      "responseModel": "deepseek/deepseek-v4-flash-20260423",
+      "role": "assistant",
+      "stopReason": "stop",
+      "timestamp": 1780670714306.0,
+      "usage": {
+        "cacheRead": 1280.0,
+        "cacheWrite": 0.0,
+        "cost": {
+          "cacheRead": 0.000025216,
+          "cacheWrite": 0.0,
+          "input": 0.0000699896,
+          "output": 0.0000086504,
+          "total": 0.00010385599999999999
+        },
+        "input": 712.0,
+        "output": 44.0,
+        "totalTokens": 2036.0
+      }
+    },
+    "toolResults": [],
+    "type": "turn_end"
+  }
+}
+{
+  "model": "AgentEndEvent",
+  "data": {
+    "messages": [
+      {
+        "content": [
+          {
+            "text": "Now rewrite the contents of /tmp/pi-notes.txt so the letters alternate upper and lower case, like 'JoShUa'.",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "role": "user",
+        "timestamp": 1780670708857.0
+      },
+      {
+        "api": "openai-completions",
+        "content": [
+          {
+            "redacted": null,
+            "thinking": "The user wants me to rewrite /tmp/pi-notes.txt so the letters alternate upper and lower case. The current content is \"hello typed world\". Let me apply alternating case starting with uppercase for 'h' (or lowercase? The example 'JoShUa' starts with uppercase J, then lowercase o, then uppercase S, etc.).\n\nSo \"hello typed world\" would become:\nh -> H\ne -> e\nl -> L\nl -> l\no -> O\n(space) -> (space)\nt -> T\ny -> y\np -> P\ne -> e\nd -> D\n(space) -> (space)\nw -> W\no -> o\nr -> R\nl -> l\nd -> D\n\nResult: \"HeLlO TyPeD WoRlD\"\n\nLet me write that.",
+            "thinkingSignature": "reasoning",
+            "type": "thinking"
+          },
+          {
+            "arguments": {
+              "content": "HeLlO TyPeD WoRlD",
+              "path": "/tmp/pi-notes.txt"
+            },
+            "id": "call_ce2eb8de64e3475b8e001d57",
+            "name": "write",
+            "thoughtSignature": null,
+            "type": "toolCall"
+          }
+        ],
+        "diagnostics": null,
+        "errorMessage": null,
+        "model": "deepseek/deepseek-v4-flash",
+        "provider": "openrouter",
+        "responseId": "gen-1780670708-jxxwZDHEqDAiTlREsNXs",
+        "responseModel": "deepseek/deepseek-v4-flash-20260423",
+        "role": "assistant",
+        "stopReason": "toolUse",
+        "timestamp": 1780670708858.0,
+        "usage": {
+          "cacheRead": 0.0,
+          "cacheWrite": 0.0,
+          "cost": {
+            "cacheRead": 0.0,
+            "cacheWrite": 0.0,
+            "input": 0.0001674049,
+            "output": 0.0000485602,
+            "total": 0.0002159651
+          },
+          "input": 1703.0,
+          "output": 247.0,
+          "totalTokens": 1950.0
+        }
+      },
+      {
+        "content": [
+          {
+            "text": "Successfully wrote 17 bytes to /tmp/pi-notes.txt",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "details": null,
+        "isError": false,
+        "role": "toolResult",
+        "timestamp": 1780670714306.0,
+        "toolCallId": "call_ce2eb8de64e3475b8e001d57",
+        "toolName": "write"
+      },
+      {
+        "api": "openai-completions",
+        "content": [
+          {
+            "redacted": null,
+            "thinking": "Done. I replaced the content with alternating case.",
+            "thinkingSignature": "reasoning",
+            "type": "thinking"
+          },
+          {
+            "text": "Done! I rewrote `/tmp/pi-notes.txt` with alternating upper/lower case: `HeLlO TyPeD WoRlD`.",
+            "textSignature": null,
+            "type": "text"
+          }
+        ],
+        "diagnostics": null,
+        "errorMessage": null,
+        "model": "deepseek/deepseek-v4-flash",
+        "provider": "openrouter",
+        "responseId": "gen-1780670714-1pt1aX56EEqj7tt4GveG",
+        "responseModel": "deepseek/deepseek-v4-flash-20260423",
+        "role": "assistant",
+        "stopReason": "stop",
+        "timestamp": 1780670714306.0,
+        "usage": {
+          "cacheRead": 1280.0,
+          "cacheWrite": 0.0,
+          "cost": {
+            "cacheRead": 0.000025216,
+            "cacheWrite": 0.0,
+            "input": 0.0000699896,
+            "output": 0.0000086504,
+            "total": 0.00010385599999999999
+          },
+          "input": 712.0,
+          "output": 44.0,
+          "totalTokens": 2036.0
+        }
+      }
+    ],
+    "type": "agent_end",
+    "willRetry": false
+  }
+}
