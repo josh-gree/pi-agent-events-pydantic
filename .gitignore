@@ -1,2 +1,12 @@
+# JS schema-gen (tools/schema-gen)
 node_modules/
+
+# Python lib
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+
 .DS_Store

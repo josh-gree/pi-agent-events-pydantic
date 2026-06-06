@@ -4,7 +4,7 @@
     "module": "ESNext",
     // node10 resolution ignores package `exports` maps, which is required to
     // reach `AgentSessionEvent` by its declaration-file path (pi-coding-agent
-    // does not export it). See src/index.ts.
+    // does not export it). See index.ts.
     "moduleResolution": "node",
     "strict": true,
     "noEmit": true,
@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["src/**/*.ts"]
+  "include": ["index.ts"]
 }
