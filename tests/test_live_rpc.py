@@ -10,6 +10,7 @@ and needs pi's auth. It is skipped unless ``PI_RPC_LIVE=1`` and `pi` is on PATH.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -21,6 +22,10 @@ from pydantic import ValidationError
 
 from pi_agent_events import AgentSessionEvent, PromptCommand, PromptResponse
 from pi_agent_events.models import AgentEndEvent, TextContent
+
+# Each parsed model is logged as it arrives; stream it with `just test-live`
+# (which passes --log-cli-level=INFO) or any `pytest --log-cli-level=INFO`.
+log = logging.getLogger("pi_rpc_drive")
 
 pytestmark = [
     pytest.mark.integration,
@@ -65,10 +70,13 @@ def _drive(messages: list[str], timeout_each: float = 150.0):
             obj = json.loads(line)
             try:
                 if obj.get("type") == "response":
-                    acks.append(PromptResponse.model_validate(obj))
+                    ack = PromptResponse.model_validate(obj)
+                    acks.append(ack)
+                    log.info("%-22s %s", "PromptResponse", ack.model_dump_json())
                     continue
                 evt = AgentSessionEvent.model_validate(obj).root
                 counts[type(evt).__name__] += 1
+                log.info("%-22s %s", type(evt).__name__, evt.model_dump_json())
                 if isinstance(evt, AgentEndEvent):
                     texts.append(_assistant_text(evt))
                     turn_done.set()

@@ -47,5 +47,6 @@ test:
 
 # Run the live integration test: drive a real `pi --no-extensions --mode rpc`
 # session and parse it (needs pi on PATH + auth; makes a real model call).
+# Streams each parsed model live via --log-cli-level=INFO.
 test-live:
-    PI_RPC_LIVE=1 uv run pytest -q -m integration
+    PI_RPC_LIVE=1 uv run pytest -s -m integration --log-cli-level=INFO
