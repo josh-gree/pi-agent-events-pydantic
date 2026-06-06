@@ -1,35 +1,36 @@
-"""Pydantic v2 models for the full ``pi --no-extensions --mode rpc`` contract.
+"""Pydantic v2 models for the slice of `pi --no-extensions --mode rpc` we use.
 
-Three union roots model the wire, generated from pi's own TypeScript types:
+Three roots, generated from pi's own TypeScript types:
 
 - ``AgentSessionEvent`` — the async event stream pi writes to stdout.
-- ``RpcResponse``       — the synchronous reply to each command (also stdout),
-                          correlated to its command by ``id``.
-- ``RpcCommand``        — the commands you write to stdin to drive the agent.
+- ``PromptResponse``    — the synchronous ack for a prompt command (also stdout),
+                          correlated to the command by ``id``.
+- ``PromptCommand``     — the command we write to stdin to drive the agent.
 
-(The extension-UI request/response types are intentionally omitted: with
-``--no-extensions`` they never appear on the wire.)
+(Only the prompt command/response are modeled; pi's other ~28 commands, its
+generic command responses, and the whole model/provider descriptor are out of
+scope — add them later if needed.)
 
-Reading stdout — validate a line, then read ``.root`` for the concrete model:
+Reading stdout — validate a line, then read ``.root`` for the concrete event:
 
-    from pi_agent_events import AgentSessionEvent, RpcResponse
+    from pi_agent_events import AgentSessionEvent, PromptResponse
 
-    evt  = AgentSessionEvent.model_validate_json(line).root   # e.g. AgentEndEvent
-    resp = RpcResponse.model_validate_json(line).root         # e.g. PromptResponse
+    evt = AgentSessionEvent.model_validate_json(line).root   # e.g. AgentEndEvent
+    ack = PromptResponse.model_validate_json(line)           # command="prompt", success=True
 
-Driving over stdin — construct a concrete command and serialize it. The concrete
-command classes (and every concrete event/response variant, for ``isinstance``
-narrowing) live in ``pi_agent_events.models``:
+Driving over stdin — construct a prompt and serialize it:
 
-    from pi_agent_events.models import PromptCommand
+    from pi_agent_events import PromptCommand
 
     proc.stdin.write(PromptCommand(type="prompt", id="1", message="hi").model_dump_json() + "\\n")
 
-``models.py`` is generated — do not edit it by hand; regenerate with ``just gen``.
+``AgentSessionEvent`` is a ``RootModel`` union; its concrete event variants (for
+``isinstance`` / annotations) live in ``pi_agent_events.models``. ``models.py`` is
+generated — do not edit it by hand; regenerate with ``just gen``.
 """
 
 from __future__ import annotations
 
-from .models import AgentSessionEvent, RpcCommand, RpcResponse
+from .models import AgentSessionEvent, PromptCommand, PromptResponse
 
-__all__ = ["AgentSessionEvent", "RpcCommand", "RpcResponse"]
+__all__ = ["AgentSessionEvent", "PromptCommand", "PromptResponse"]
