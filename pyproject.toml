@@ -1,7 +1,7 @@
 [project]
 name = "pi-agent-events"
 version = "0.1.0"
-description = "Add your description here"
+description = "Typed Pydantic v2 models for pi's `--mode rpc` AgentSessionEvent stdout stream, generated from a pinned pi version."
 readme = "README.md"
 authors = [
     { name = "josh-gree", email = "joshuadouglasgreenhalgh@gmail.com" }
