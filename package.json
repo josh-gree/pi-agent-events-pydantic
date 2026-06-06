@@ -5,13 +5,15 @@
   "type": "module",
   "description": "Import and re-export pi's AgentSessionEvent type tree from a pinned pi version.",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "schema": "ts-json-schema-generator --path src/index.ts --type AgentSessionEvent --tsconfig tsconfig.json -o schema/agent-session.schema.json"
   },
   "comment_versions": "Pin all three @earendil-works packages to the EXACT pi version whose stdout you want to model. AgentSessionEvent (pi-coding-agent) pulls AgentEvent/AgentMessage (pi-agent-core) and content blocks/Model (pi-ai); keeping the three aligned keeps the type tree internally consistent.",
   "devDependencies": {
     "@earendil-works/pi-agent-core": "0.78.1",
     "@earendil-works/pi-ai": "0.78.1",
     "@earendil-works/pi-coding-agent": "0.78.1",
+    "ts-json-schema-generator": "^2.9.0",
     "typescript": "^5.7.0"
   }
 }
