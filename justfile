@@ -41,6 +41,11 @@ gen: schema models
 typecheck:
     cd tools/schema-gen && npm run --silent typecheck
 
-# Run the test suite (parses the committed transcript through the models).
+# Run the unit suite (offline; parses the committed fixture through the models).
 test:
-    uv run pytest -q
+    uv run pytest -q -m "not integration"
+
+# Run the live integration test: drive a real `pi --no-extensions --mode rpc`
+# session and parse it (needs pi on PATH + auth; makes a real model call).
+test-live:
+    PI_RPC_LIVE=1 uv run pytest -q -m integration
