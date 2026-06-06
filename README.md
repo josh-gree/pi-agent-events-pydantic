@@ -1,38 +1,58 @@
 # pi-agent-events-pydantic
 
-Typed **Pydantic v2** models for the event stream `pi --mode rpc` writes to
-stdout — generated from pi's own TypeScript types, pinned to a fixed pi version.
+Typed **Pydantic v2** models for the full `pi --no-extensions --mode rpc`
+contract — both directions of the stream — generated from pi's own TypeScript
+types, pinned to a fixed pi version.
 
-The wire type is pi-coding-agent's **`AgentSessionEvent`**: a `RootModel` union of
-every event pi emits (`agent_start`, `message_update`, `tool_execution_*`,
-`agent_end`, the session-level `compaction_*`/`auto_retry_*`/…). There are no
-published Python types, so rather than hand-maintain models that silently drift,
-we generate them.
+There are no published Python types, so rather than hand-maintain models that
+silently drift on a pi bump, we generate them. Three `RootModel` union roots
+model the wire:
+
+| Root | Direction | What |
+|---|---|---|
+| `AgentSessionEvent` | stdout | async event stream (`agent_start`, `message_update`, `tool_execution_*`, `agent_end`, session-level `compaction_*`/`auto_retry_*`/…) |
+| `RpcResponse` | stdout | synchronous reply to each command, correlated by `id` |
+| `RpcCommand` | stdin | commands that drive the agent (`prompt`, `steer`, `abort`, …) |
+
+The extension-UI request/response types are intentionally omitted: with
+`--no-extensions` they never appear on the wire.
 
 ## Use
 
-```python
-from pi_agent_events import AgentSessionEvent
+Reading stdout — validate a line, then read `.root` for the concrete model:
 
-evt = AgentSessionEvent.model_validate_json(line).root   # one stdout line
-# evt is the concrete event, e.g. AgentEndEvent / ToolExecutionStartEvent
+```python
+from pi_agent_events import AgentSessionEvent, RpcResponse
+
+evt  = AgentSessionEvent.model_validate_json(line).root   # e.g. AgentEndEvent
+resp = RpcResponse.model_validate_json(line).root         # e.g. PromptResponse
 ```
 
-`AgentSessionEvent` is the single public type; the concrete variant classes (for
-`isinstance` / annotations) live in `pi_agent_events.models`.
+Driving over stdin — construct a concrete command and serialize it:
+
+```python
+from pi_agent_events.models import PromptCommand
+
+proc.stdin.write(PromptCommand(type="prompt", id="1", message="hi").model_dump_json() + "\n")
+```
+
+The three roots are the public API; the concrete variant classes — events and
+responses (for `isinstance` narrowing) and the commands you send — live in
+`pi_agent_events.models`.
 
 ## How it's generated
 
 ```
-tools/schema-gen/index.ts          re-exports pi's AgentSessionEvent
-   │  ts-json-schema-generator
+tools/schema-gen/index.ts      re-exports AgentSessionEvent + RpcCommand + RpcResponse
+   │  ts-json-schema-generator  (--type '*')
    ▼
-schema/agent-session.schema.json   raw JSON Schema (committed)
-   │  tools/patch_schema.py         stable names from the `type` discriminant;
-   │                                drop additionalProperties:false (pi emits
-   │                                fields its own types omit)
+schema/pi-rpc.schema.json       raw JSON Schema (committed)
+   │  tools/patch_schema.py      stable names from each union's discriminant
+   │                             (type / command); name response payloads; rename
+   │                             Model<any>; drop additionalProperties:false
+   │                             (pi emits fields its own types omit)
    ▼
-src/pi_agent_events/models.py       Pydantic v2 (committed; do not hand-edit)
+src/pi_agent_events/models.py   Pydantic v2 (committed; do not hand-edit)
 ```
 
 The pinned pi version lives in `tools/schema-gen/package.json` (the three
@@ -44,5 +64,5 @@ The pinned pi version lives in `tools/schema-gen/package.json` (the three
 ```bash
 just install   # JS schema-gen + Python lib toolchains
 just gen       # regenerate schema + models from the pinned pi types
-just test      # parse the captured session fixture through the models
+just test      # parse the captured session fixture; exercise commands/responses
 ```

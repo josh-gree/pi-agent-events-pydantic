@@ -1,0 +1,3442 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AgentMessage": {
+      "$ref": "#/definitions/Message",
+      "description": "AgentMessage: Union of LLM messages + custom messages. This abstraction allows apps to add custom message types while maintaining type safety and compatibility with the base LLM messages."
+    },
+    "AgentSessionEvent": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "agent_start",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "turn_start",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "message": {
+                  "$ref": "#/definitions/AgentMessage"
+                },
+                "toolResults": {
+                  "items": {
+                    "$ref": "#/definitions/ToolResultMessage"
+                  },
+                  "type": "array"
+                },
+                "type": {
+                  "const": "turn_end",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "message",
+                "toolResults"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "message": {
+                  "$ref": "#/definitions/AgentMessage"
+                },
+                "type": {
+                  "const": "message_start",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "assistantMessageEvent": {
+                  "$ref": "#/definitions/AssistantMessageEvent"
+                },
+                "message": {
+                  "$ref": "#/definitions/AgentMessage"
+                },
+                "type": {
+                  "const": "message_update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "message",
+                "assistantMessageEvent"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "message": {
+                  "$ref": "#/definitions/AgentMessage"
+                },
+                "type": {
+                  "const": "message_end",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "message"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "args": {},
+                "toolCallId": {
+                  "type": "string"
+                },
+                "toolName": {
+                  "type": "string"
+                },
+                "type": {
+                  "const": "tool_execution_start",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "toolCallId",
+                "toolName",
+                "args"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "args": {},
+                "partialResult": {},
+                "toolCallId": {
+                  "type": "string"
+                },
+                "toolName": {
+                  "type": "string"
+                },
+                "type": {
+                  "const": "tool_execution_update",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "toolCallId",
+                "toolName",
+                "args",
+                "partialResult"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "isError": {
+                  "type": "boolean"
+                },
+                "result": {},
+                "toolCallId": {
+                  "type": "string"
+                },
+                "toolName": {
+                  "type": "string"
+                },
+                "type": {
+                  "const": "tool_execution_end",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "toolCallId",
+                "toolName",
+                "result",
+                "isError"
+              ],
+              "type": "object"
+            }
+          ],
+          "description": "Events emitted by the Agent for UI updates.\n\n`agent_end` is the last event emitted for a run, but awaited `Agent.subscribe()` listeners for that event are still part of run settlement. The agent becomes idle only after those listeners finish."
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "messages": {
+              "items": {
+                "$ref": "#/definitions/AgentMessage"
+              },
+              "type": "array"
+            },
+            "type": {
+              "const": "agent_end",
+              "type": "string"
+            },
+            "willRetry": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "messages",
+            "willRetry"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "followUp": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "steering": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": {
+              "const": "queue_update",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "steering",
+            "followUp"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "enum": [
+                "manual",
+                "threshold",
+                "overflow"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "compaction_start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "const": "session_info_changed",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "level": {
+              "$ref": "#/definitions/ThinkingLevel"
+            },
+            "type": {
+              "const": "thinking_level_changed",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "aborted": {
+              "type": "boolean"
+            },
+            "errorMessage": {
+              "type": "string"
+            },
+            "reason": {
+              "enum": [
+                "manual",
+                "threshold",
+                "overflow"
+              ],
+              "type": "string"
+            },
+            "result": {
+              "$ref": "#/definitions/CompactionResult"
+            },
+            "type": {
+              "const": "compaction_end",
+              "type": "string"
+            },
+            "willRetry": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "reason",
+            "aborted",
+            "willRetry"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "attempt": {
+              "type": "number"
+            },
+            "delayMs": {
+              "type": "number"
+            },
+            "errorMessage": {
+              "type": "string"
+            },
+            "maxAttempts": {
+              "type": "number"
+            },
+            "type": {
+              "const": "auto_retry_start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "attempt",
+            "maxAttempts",
+            "delayMs",
+            "errorMessage"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "attempt": {
+              "type": "number"
+            },
+            "finalError": {
+              "type": "string"
+            },
+            "success": {
+              "type": "boolean"
+            },
+            "type": {
+              "const": "auto_retry_end",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "success",
+            "attempt"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "Session-specific events that extend the core AgentEvent"
+    },
+    "Api": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/KnownApi"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "AssistantMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "api": {
+          "$ref": "#/definitions/Api"
+        },
+        "content": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/TextContent"
+              },
+              {
+                "$ref": "#/definitions/ThinkingContent"
+              },
+              {
+                "$ref": "#/definitions/ToolCall"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "$ref": "#/definitions/AssistantMessageDiagnostic"
+          },
+          "type": "array"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/definitions/Provider"
+        },
+        "responseId": {
+          "type": "string"
+        },
+        "responseModel": {
+          "type": "string"
+        },
+        "role": {
+          "const": "assistant",
+          "type": "string"
+        },
+        "stopReason": {
+          "$ref": "#/definitions/StopReason"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "usage": {
+          "$ref": "#/definitions/Usage"
+        }
+      },
+      "required": [
+        "role",
+        "content",
+        "api",
+        "provider",
+        "model",
+        "usage",
+        "stopReason",
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "AssistantMessageDiagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "additionalProperties": {},
+          "type": "object"
+        },
+        "error": {
+          "$ref": "#/definitions/DiagnosticErrorInfo"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "AssistantMessageEvent": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "text_start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "delta": {
+              "type": "string"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "text_delta",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "delta",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "text_end",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "content",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "thinking_start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "delta": {
+              "type": "string"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "thinking_delta",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "delta",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "thinking_end",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "content",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "toolcall_start",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "delta": {
+              "type": "string"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "type": {
+              "const": "toolcall_delta",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "delta",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "contentIndex": {
+              "type": "number"
+            },
+            "partial": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "toolCall": {
+              "$ref": "#/definitions/ToolCall"
+            },
+            "type": {
+              "const": "toolcall_end",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "contentIndex",
+            "toolCall",
+            "partial"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "message": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "reason": {
+              "enum": [
+                "stop",
+                "length",
+                "toolUse"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "done",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "reason",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "error": {
+              "$ref": "#/definitions/AssistantMessage"
+            },
+            "reason": {
+              "enum": [
+                "error",
+                "aborted"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "error",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "reason",
+            "error"
+          ],
+          "type": "object"
+        }
+      ],
+      "description": "Event protocol for AssistantMessageEventStream.\n\nStreams should emit `start` before partial updates, then terminate with either:\n- `done` carrying the final successful AssistantMessage, or\n- `error` carrying the final AssistantMessage with stopReason \"error\" or \"aborted\"   and errorMessage."
+    },
+    "BashResult": {
+      "additionalProperties": false,
+      "properties": {
+        "cancelled": {
+          "description": "Whether the command was cancelled via signal",
+          "type": "boolean"
+        },
+        "exitCode": {
+          "description": "Process exit code (undefined if killed/cancelled)",
+          "type": "number"
+        },
+        "fullOutputPath": {
+          "description": "Path to temp file containing full output (if output exceeded truncation threshold)",
+          "type": "string"
+        },
+        "output": {
+          "description": "Combined stdout + stderr output (sanitized, possibly truncated)",
+          "type": "string"
+        },
+        "truncated": {
+          "description": "Whether the output was truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "output",
+        "cancelled",
+        "truncated"
+      ],
+      "type": "object"
+    },
+    "CompactionResult": {
+      "additionalProperties": false,
+      "description": "Result from compact() - SessionManager adds uuid/parentUuid when saving",
+      "properties": {
+        "details": {
+          "description": "Extension-specific data (e.g., ArtifactIndex, version markers for structured compaction)"
+        },
+        "firstKeptEntryId": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tokensBefore": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "summary",
+        "firstKeptEntryId",
+        "tokensBefore"
+      ],
+      "type": "object"
+    },
+    "ContextUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "contextWindow": {
+          "type": "number"
+        },
+        "percent": {
+          "description": "Context usage as percentage of context window, or null if tokens is unknown.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "tokens": {
+          "description": "Estimated context tokens, or null if unknown (e.g. right after compaction, before next LLM response).",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "tokens",
+        "contextWindow",
+        "percent"
+      ],
+      "type": "object"
+    },
+    "DiagnosticErrorInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "stack": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "type": "object"
+    },
+    "ImageContent": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "type": "string"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "type": {
+          "const": "image",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "data",
+        "mimeType"
+      ],
+      "type": "object"
+    },
+    "KnownApi": {
+      "enum": [
+        "openai-completions",
+        "mistral-conversations",
+        "openai-responses",
+        "azure-openai-responses",
+        "openai-codex-responses",
+        "anthropic-messages",
+        "bedrock-converse-stream",
+        "google-generative-ai",
+        "google-vertex"
+      ],
+      "type": "string"
+    },
+    "KnownProvider": {
+      "enum": [
+        "amazon-bedrock",
+        "ant-ling",
+        "anthropic",
+        "google",
+        "google-vertex",
+        "openai",
+        "azure-openai-responses",
+        "openai-codex",
+        "nvidia",
+        "deepseek",
+        "github-copilot",
+        "xai",
+        "groq",
+        "cerebras",
+        "openrouter",
+        "vercel-ai-gateway",
+        "zai",
+        "zai-coding-cn",
+        "mistral",
+        "minimax",
+        "minimax-cn",
+        "moonshotai",
+        "moonshotai-cn",
+        "huggingface",
+        "fireworks",
+        "together",
+        "opencode",
+        "opencode-go",
+        "kimi-coding",
+        "cloudflare-workers-ai",
+        "cloudflare-ai-gateway",
+        "xiaomi",
+        "xiaomi-token-plan-cn",
+        "xiaomi-token-plan-ams",
+        "xiaomi-token-plan-sgp"
+      ],
+      "type": "string"
+    },
+    "Message": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/UserMessage"
+        },
+        {
+          "$ref": "#/definitions/AssistantMessage"
+        },
+        {
+          "$ref": "#/definitions/ToolResultMessage"
+        }
+      ]
+    },
+    "Model<any>": {
+      "additionalProperties": false,
+      "properties": {
+        "api": {},
+        "baseUrl": {
+          "type": "string"
+        },
+        "compat": {
+          "$ref": "#/definitions/OpenAICompletionsCompat",
+          "description": "Compatibility overrides for OpenAI-compatible APIs. If not set, auto-detected from baseUrl."
+        },
+        "contextWindow": {
+          "type": "number"
+        },
+        "cost": {
+          "additionalProperties": false,
+          "properties": {
+            "cacheRead": {
+              "type": "number"
+            },
+            "cacheWrite": {
+              "type": "number"
+            },
+            "input": {
+              "type": "number"
+            },
+            "output": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "input",
+            "output",
+            "cacheRead",
+            "cacheWrite"
+          ],
+          "type": "object"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "input": {
+          "items": {
+            "enum": [
+              "text",
+              "image"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "maxTokens": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/definitions/Provider"
+        },
+        "reasoning": {
+          "type": "boolean"
+        },
+        "thinkingLevelMap": {
+          "$ref": "#/definitions/ThinkingLevelMap",
+          "description": "Maps pi thinking levels to provider/model-specific values. Missing keys use provider defaults. null marks a level as unsupported."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "api",
+        "provider",
+        "baseUrl",
+        "reasoning",
+        "input",
+        "cost",
+        "contextWindow",
+        "maxTokens"
+      ],
+      "type": "object"
+    },
+    "OpenAICompletionsCompat": {
+      "additionalProperties": false,
+      "description": "Compatibility settings for OpenAI-compatible completions APIs. Use this to override URL-based auto-detection for custom providers.",
+      "properties": {
+        "cacheControlFormat": {
+          "const": "anthropic",
+          "description": "Cache control convention for prompt caching. \"anthropic\" applies Anthropic-style `cache_control` markers to the system prompt, last tool definition, and last user/assistant text content.",
+          "type": "string"
+        },
+        "maxTokensField": {
+          "description": "Which field to use for max tokens. Default: auto-detected from URL.",
+          "enum": [
+            "max_completion_tokens",
+            "max_tokens"
+          ],
+          "type": "string"
+        },
+        "openRouterRouting": {
+          "$ref": "#/definitions/OpenRouterRouting",
+          "description": "OpenRouter-specific routing preferences. Only used when baseUrl points to OpenRouter."
+        },
+        "requiresAssistantAfterToolResult": {
+          "description": "Whether a user message after tool results requires an assistant message in between. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "requiresReasoningContentOnAssistantMessages": {
+          "description": "Whether all replayed assistant messages must include an empty reasoning_content field when reasoning is enabled. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "requiresThinkingAsText": {
+          "description": "Whether thinking blocks must be converted to text blocks with <thinking> delimiters. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "requiresToolResultName": {
+          "description": "Whether tool results require the `name` field. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "sendSessionAffinityHeaders": {
+          "description": "Whether to send known session-affinity headers (`session_id`, `x-client-request-id`, `x-session-affinity`) from `options.sessionId` when caching is enabled. Default: false.",
+          "type": "boolean"
+        },
+        "supportsDeveloperRole": {
+          "description": "Whether the provider supports the `developer` role (vs `system`). Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "supportsLongCacheRetention": {
+          "description": "Whether the provider supports long prompt cache retention (`prompt_cache_retention: \"24h\"` or Anthropic-style `cache_control.ttl: \"1h\"`, depending on format). Default: true.",
+          "type": "boolean"
+        },
+        "supportsReasoningEffort": {
+          "description": "Whether the provider supports `reasoning_effort`. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "supportsStore": {
+          "description": "Whether the provider supports the `store` field. Default: auto-detected from URL.",
+          "type": "boolean"
+        },
+        "supportsStrictMode": {
+          "description": "Whether the provider supports the `strict` field in tool definitions. Default: true.",
+          "type": "boolean"
+        },
+        "supportsUsageInStreaming": {
+          "description": "Whether the provider supports `stream_options: { include_usage: true }` for token usage in streaming responses. Default: true.",
+          "type": "boolean"
+        },
+        "thinkingFormat": {
+          "description": "Format for reasoning/thinking parameter. \"openai\" uses reasoning_effort, \"openrouter\" uses reasoning: { effort }, \"deepseek\" uses thinking: { type } plus reasoning_effort when supported, \"together\" uses reasoning: { enabled } plus reasoning_effort when supported, \"zai\" uses top-level enable_thinking: boolean, \"qwen\" uses top-level enable_thinking: boolean, \"qwen-chat-template\" uses chat_template_kwargs.enable_thinking, \"string-thinking\" uses top-level thinking: string, and \"ant-ling\" uses reasoning: { effort } only when the mapped effort is non-null. Default: \"openai\".",
+          "enum": [
+            "openai",
+            "openrouter",
+            "deepseek",
+            "together",
+            "zai",
+            "qwen",
+            "qwen-chat-template",
+            "string-thinking",
+            "ant-ling"
+          ],
+          "type": "string"
+        },
+        "vercelGatewayRouting": {
+          "$ref": "#/definitions/VercelGatewayRouting",
+          "description": "Vercel AI Gateway routing preferences. Only used when baseUrl points to Vercel AI Gateway."
+        },
+        "zaiToolStream": {
+          "description": "Whether z.ai supports top-level `tool_stream: true` for streaming tool call deltas. Default: false.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "OpenRouterRouting": {
+      "additionalProperties": false,
+      "description": "OpenRouter provider routing preferences. Controls which upstream providers OpenRouter routes requests to. Sent as the `provider` field in the OpenRouter API request body.",
+      "properties": {
+        "allow_fallbacks": {
+          "description": "Whether to allow backup providers to serve requests. Default: true.",
+          "type": "boolean"
+        },
+        "data_collection": {
+          "description": "Data collection setting. \"allow\" (default): allow providers that may store/train on data. \"deny\": only use providers that don't collect user data.",
+          "enum": [
+            "deny",
+            "allow"
+          ],
+          "type": "string"
+        },
+        "enforce_distillable_text": {
+          "description": "Whether to restrict routing to only models that allow text distillation.",
+          "type": "boolean"
+        },
+        "ignore": {
+          "description": "List of provider names/slugs to skip for this request.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "max_price": {
+          "additionalProperties": false,
+          "description": "Maximum price per million tokens (USD).",
+          "properties": {
+            "audio": {
+              "description": "Price per audio unit.",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "completion": {
+              "description": "Price per million completion tokens.",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "image": {
+              "description": "Price per image.",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "prompt": {
+              "description": "Price per million prompt tokens.",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "request": {
+              "description": "Price per request.",
+              "type": [
+                "number",
+                "string"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "only": {
+          "description": "List of provider names/slugs to exclusively allow for this request.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "order": {
+          "description": "An ordered list of provider names/slugs to try in sequence, falling back to the next if unavailable.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "preferred_max_latency": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "p50": {
+                  "description": "Maximum latency in seconds at the 50th percentile.",
+                  "type": "number"
+                },
+                "p75": {
+                  "description": "Maximum latency in seconds at the 75th percentile.",
+                  "type": "number"
+                },
+                "p90": {
+                  "description": "Maximum latency in seconds at the 90th percentile.",
+                  "type": "number"
+                },
+                "p99": {
+                  "description": "Maximum latency in seconds at the 99th percentile.",
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            }
+          ],
+          "description": "Preferred maximum latency (seconds). Can be a number (applies to p50) or an object with percentile-specific cutoffs."
+        },
+        "preferred_min_throughput": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "p50": {
+                  "description": "Minimum tokens/second at the 50th percentile.",
+                  "type": "number"
+                },
+                "p75": {
+                  "description": "Minimum tokens/second at the 75th percentile.",
+                  "type": "number"
+                },
+                "p90": {
+                  "description": "Minimum tokens/second at the 90th percentile.",
+                  "type": "number"
+                },
+                "p99": {
+                  "description": "Minimum tokens/second at the 99th percentile.",
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            }
+          ],
+          "description": "Preferred minimum throughput (tokens/second). Can be a number (applies to p50) or an object with percentile-specific cutoffs."
+        },
+        "quantizations": {
+          "description": "A list of quantization levels to filter providers by (e.g., [\"fp16\", \"bf16\", \"fp8\", \"fp6\", \"int8\", \"int4\", \"fp4\", \"fp32\"]).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "require_parameters": {
+          "description": "Whether to filter providers to only those that support all parameters in the request. Default: false.",
+          "type": "boolean"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "by": {
+                  "description": "The sorting metric: \"price\", \"throughput\", \"latency\".",
+                  "type": "string"
+                },
+                "partition": {
+                  "description": "Partitioning strategy: \"model\" (default) or \"none\".",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "type": "object"
+            }
+          ],
+          "description": "Sorting strategy. Can be a string (e.g., \"price\", \"throughput\", \"latency\") or an object with `by` and `partition`."
+        },
+        "zdr": {
+          "description": "Whether to restrict routing to only ZDR (Zero Data Retention) endpoints.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "Provider": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/KnownProvider"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "RpcCommand": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "images": {
+              "items": {
+                "$ref": "#/definitions/ImageContent"
+              },
+              "type": "array"
+            },
+            "message": {
+              "type": "string"
+            },
+            "streamingBehavior": {
+              "enum": [
+                "steer",
+                "followUp"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "prompt",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "images": {
+              "items": {
+                "$ref": "#/definitions/ImageContent"
+              },
+              "type": "array"
+            },
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "const": "steer",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "images": {
+              "items": {
+                "$ref": "#/definitions/ImageContent"
+              },
+              "type": "array"
+            },
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "const": "follow_up",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "abort",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "parentSession": {
+              "type": "string"
+            },
+            "type": {
+              "const": "new_session",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_state",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_model",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "provider",
+            "modelId"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "cycle_model",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_available_models",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "level": {
+              "$ref": "#/definitions/ThinkingLevel"
+            },
+            "type": {
+              "const": "set_thinking_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "level"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "cycle_thinking_level",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "mode": {
+              "enum": [
+                "all",
+                "one-at-a-time"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "set_steering_mode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "mode"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "mode": {
+              "enum": [
+                "all",
+                "one-at-a-time"
+              ],
+              "type": "string"
+            },
+            "type": {
+              "const": "set_follow_up_mode",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "mode"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "customInstructions": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "compact",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_auto_compaction",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "enabled"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_auto_retry",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "enabled"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "abort_retry",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "excludeFromContext": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "bash",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "abort_bash",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_session_stats",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "outputPath": {
+              "type": "string"
+            },
+            "type": {
+              "const": "export_html",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "sessionPath": {
+              "type": "string"
+            },
+            "type": {
+              "const": "switch_session",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "sessionPath"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "entryId": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "fork",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "entryId"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "clone",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_fork_messages",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_last_assistant_text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_session_name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_messages",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "get_commands",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "RpcResponse": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "prompt",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "steer",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "follow_up",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "abort",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "new_session",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "cancelled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "cancelled"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_state",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/definitions/RpcSessionState"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_model",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/definitions/Model%3Cany%3E"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "cycle_model",
+              "type": "string"
+            },
+            "data": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "isScoped": {
+                      "type": "boolean"
+                    },
+                    "model": {
+                      "$ref": "#/definitions/Model%3Cany%3E"
+                    },
+                    "thinkingLevel": {
+                      "$ref": "#/definitions/ThinkingLevel"
+                    }
+                  },
+                  "required": [
+                    "model",
+                    "thinkingLevel",
+                    "isScoped"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_available_models",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "models": {
+                  "items": {
+                    "$ref": "#/definitions/Model%3Cany%3E"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "models"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_thinking_level",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "cycle_thinking_level",
+              "type": "string"
+            },
+            "data": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "level": {
+                      "$ref": "#/definitions/ThinkingLevel"
+                    }
+                  },
+                  "required": [
+                    "level"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_steering_mode",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_follow_up_mode",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "compact",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/definitions/CompactionResult"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_auto_compaction",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_auto_retry",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "abort_retry",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "bash",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/definitions/BashResult"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "abort_bash",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_session_stats",
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/definitions/SessionStats"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "export_html",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "switch_session",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "cancelled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "cancelled"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "fork",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "cancelled": {
+                  "type": "boolean"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text",
+                "cancelled"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "clone",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "cancelled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "cancelled"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_fork_messages",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "messages": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "entryId": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "entryId",
+                      "text"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "messages"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_last_assistant_text",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "text": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "set_session_name",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_messages",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "messages": {
+                  "items": {
+                    "$ref": "#/definitions/AgentMessage"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "messages"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "get_commands",
+              "type": "string"
+            },
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "commands": {
+                  "items": {
+                    "$ref": "#/definitions/RpcSlashCommand"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "commands"
+              ],
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": true,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "success": {
+              "const": false,
+              "type": "boolean"
+            },
+            "type": {
+              "const": "response",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "command",
+            "success",
+            "error"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "RpcSessionState": {
+      "additionalProperties": false,
+      "properties": {
+        "autoCompactionEnabled": {
+          "type": "boolean"
+        },
+        "followUpMode": {
+          "enum": [
+            "all",
+            "one-at-a-time"
+          ],
+          "type": "string"
+        },
+        "isCompacting": {
+          "type": "boolean"
+        },
+        "isStreaming": {
+          "type": "boolean"
+        },
+        "messageCount": {
+          "type": "number"
+        },
+        "model": {
+          "$ref": "#/definitions/Model%3Cany%3E"
+        },
+        "pendingMessageCount": {
+          "type": "number"
+        },
+        "sessionFile": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "sessionName": {
+          "type": "string"
+        },
+        "steeringMode": {
+          "enum": [
+            "all",
+            "one-at-a-time"
+          ],
+          "type": "string"
+        },
+        "thinkingLevel": {
+          "$ref": "#/definitions/ThinkingLevel"
+        }
+      },
+      "required": [
+        "thinkingLevel",
+        "isStreaming",
+        "isCompacting",
+        "steeringMode",
+        "followUpMode",
+        "sessionId",
+        "autoCompactionEnabled",
+        "messageCount",
+        "pendingMessageCount"
+      ],
+      "type": "object"
+    },
+    "RpcSlashCommand": {
+      "additionalProperties": false,
+      "description": "A command available for invocation via prompt",
+      "properties": {
+        "description": {
+          "description": "Human-readable description",
+          "type": "string"
+        },
+        "name": {
+          "description": "Command name (without leading slash)",
+          "type": "string"
+        },
+        "source": {
+          "description": "What kind of command this is",
+          "enum": [
+            "extension",
+            "prompt",
+            "skill"
+          ],
+          "type": "string"
+        },
+        "sourceInfo": {
+          "$ref": "#/definitions/SourceInfo",
+          "description": "Source metadata for the owning resource"
+        }
+      },
+      "required": [
+        "name",
+        "source",
+        "sourceInfo"
+      ],
+      "type": "object"
+    },
+    "SessionStats": {
+      "additionalProperties": false,
+      "description": "Session statistics for /session command",
+      "properties": {
+        "assistantMessages": {
+          "type": "number"
+        },
+        "contextUsage": {
+          "$ref": "#/definitions/ContextUsage"
+        },
+        "cost": {
+          "type": "number"
+        },
+        "sessionFile": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "tokens": {
+          "additionalProperties": false,
+          "properties": {
+            "cacheRead": {
+              "type": "number"
+            },
+            "cacheWrite": {
+              "type": "number"
+            },
+            "input": {
+              "type": "number"
+            },
+            "output": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "input",
+            "output",
+            "cacheRead",
+            "cacheWrite",
+            "total"
+          ],
+          "type": "object"
+        },
+        "toolCalls": {
+          "type": "number"
+        },
+        "toolResults": {
+          "type": "number"
+        },
+        "totalMessages": {
+          "type": "number"
+        },
+        "userMessages": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "sessionId",
+        "userMessages",
+        "assistantMessages",
+        "toolCalls",
+        "toolResults",
+        "totalMessages",
+        "tokens",
+        "cost"
+      ],
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "baseDir": {
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/definitions/SourceOrigin"
+        },
+        "path": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/definitions/SourceScope"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "source",
+        "scope",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "SourceOrigin": {
+      "enum": [
+        "package",
+        "top-level"
+      ],
+      "type": "string"
+    },
+    "SourceScope": {
+      "enum": [
+        "user",
+        "project",
+        "temporary"
+      ],
+      "type": "string"
+    },
+    "StopReason": {
+      "enum": [
+        "stop",
+        "length",
+        "toolUse",
+        "error",
+        "aborted"
+      ],
+      "type": "string"
+    },
+    "TextContent": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "textSignature": {
+          "type": "string"
+        },
+        "type": {
+          "const": "text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "text"
+      ],
+      "type": "object"
+    },
+    "ThinkingContent": {
+      "additionalProperties": false,
+      "properties": {
+        "redacted": {
+          "description": "When true, the thinking content was redacted by safety filters. The opaque encrypted payload is stored in `thinkingSignature` so it can be passed back to the API for multi-turn continuity.",
+          "type": "boolean"
+        },
+        "thinking": {
+          "type": "string"
+        },
+        "thinkingSignature": {
+          "type": "string"
+        },
+        "type": {
+          "const": "thinking",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "thinking"
+      ],
+      "type": "object"
+    },
+    "ThinkingLevel": {
+      "description": "Thinking/reasoning level for models that support it. Note: \"xhigh\" is only supported by selected model families. Use model thinking-level metadata from",
+      "enum": [
+        "off",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "type": "string"
+    },
+    "ThinkingLevelMap": {
+      "additionalProperties": false,
+      "properties": {
+        "high": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "low": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "medium": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "minimal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "off": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "xhigh": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "arguments": {
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "thoughtSignature": {
+          "type": "string"
+        },
+        "type": {
+          "const": "toolCall",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "name",
+        "arguments"
+      ],
+      "type": "object"
+    },
+    "ToolResultMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/TextContent"
+              },
+              {
+                "$ref": "#/definitions/ImageContent"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "details": {},
+        "isError": {
+          "type": "boolean"
+        },
+        "role": {
+          "const": "toolResult",
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "toolCallId": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "toolCallId",
+        "toolName",
+        "content",
+        "isError",
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "cacheRead": {
+          "type": "number"
+        },
+        "cacheWrite": {
+          "type": "number"
+        },
+        "cost": {
+          "additionalProperties": false,
+          "properties": {
+            "cacheRead": {
+              "type": "number"
+            },
+            "cacheWrite": {
+              "type": "number"
+            },
+            "input": {
+              "type": "number"
+            },
+            "output": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "input",
+            "output",
+            "cacheRead",
+            "cacheWrite",
+            "total"
+          ],
+          "type": "object"
+        },
+        "input": {
+          "type": "number"
+        },
+        "output": {
+          "type": "number"
+        },
+        "totalTokens": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "input",
+        "output",
+        "cacheRead",
+        "cacheWrite",
+        "totalTokens",
+        "cost"
+      ],
+      "type": "object"
+    },
+    "UserMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/TextContent"
+                  },
+                  {
+                    "$ref": "#/definitions/ImageContent"
+                  }
+                ]
+              },
+              "type": "array"
+            }
+          ]
+        },
+        "role": {
+          "const": "user",
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "role",
+        "content",
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "VercelGatewayRouting": {
+      "additionalProperties": false,
+      "description": "Vercel AI Gateway routing preferences. Controls which upstream providers the gateway routes requests to.",
+      "properties": {
+        "only": {
+          "description": "List of provider slugs to exclusively use for this request (e.g., [\"bedrock\", \"anthropic\"]).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "order": {
+          "description": "List of provider slugs to try in order (e.g., [\"anthropic\", \"openai\"]).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

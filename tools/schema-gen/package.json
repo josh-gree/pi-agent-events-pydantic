@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Build-time tool: emit JSON Schema for pi's AgentSessionEvent from pinned pi types. Output feeds the Python lib at the repo root.",
+  "description": "Build-time tool: emit JSON Schema for pi's full --mode rpc contract (events, commands, responses, extension UI) from pinned pi types. Output feeds the Python lib at the repo root.",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "schema": "ts-json-schema-generator --path index.ts --type AgentSessionEvent --tsconfig tsconfig.json -o ../../schema/agent-session.schema.json"
+    "schema": "ts-json-schema-generator --path index.ts --type '*' --tsconfig tsconfig.json -o ../../schema/pi-rpc.schema.json"
   },
   "comment_versions": "Pin all three @earendil-works packages to the EXACT pi version whose stdout you want to model. AgentSessionEvent (pi-coding-agent) pulls AgentEvent/AgentMessage (pi-agent-core) and content blocks/Model (pi-ai); keeping the three aligned keeps the type tree internally consistent.",
   "devDependencies": {
