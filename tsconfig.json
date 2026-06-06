@@ -2,11 +2,18 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    // node10 resolution ignores package `exports` maps, which is required to
+    // reach `AgentSessionEvent` by its declaration-file path (pi-coding-agent
+    // does not export it). See src/index.ts.
+    "moduleResolution": "node",
     "strict": true,
-    "skipLibCheck": true,
     "noEmit": true,
+    // pi's shipped .d.ts files import sibling modules with explicit `.ts`
+    // extensions; allow that in declaration resolution.
+    "allowImportingTsExtensions": true,
+    // We only typecheck our own re-export, not pi's internal declarations.
+    "skipLibCheck": true,
     "types": []
   },
-  "include": ["ts/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

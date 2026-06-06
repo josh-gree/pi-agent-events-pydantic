@@ -2,16 +2,16 @@
   "name": "pi-agent-events-pydantic",
   "version": "0.0.0",
   "private": true,
-  "description": "Generate Pydantic v2 models for pi's AgentEvent stdout stream, pinned to a fixed pi version.",
   "type": "module",
+  "description": "Import and re-export pi's AgentSessionEvent type tree from a pinned pi version.",
   "scripts": {
-    "schema": "ts-json-schema-generator --path 'node_modules/@earendil-works/pi-coding-agent/dist/core/agent-session.d.ts' --type AgentSessionEvent --tsconfig tsconfig.json --no-type-check --expose all -o schema/agent-event.schema.json"
+    "typecheck": "tsc --noEmit"
   },
-  "comment_versions": "Pin these to the EXACT pi version whose stdout you want to parse. The sandbox image installs @earendil-works/pi-coding-agent@<X>; pin these two to the same <X>. AgentEvent resolves entirely from these two packages.",
+  "comment_versions": "Pin all three @earendil-works packages to the EXACT pi version whose stdout you want to model. AgentSessionEvent (pi-coding-agent) pulls AgentEvent/AgentMessage (pi-agent-core) and content blocks/Model (pi-ai); keeping the three aligned keeps the type tree internally consistent.",
   "devDependencies": {
     "@earendil-works/pi-agent-core": "0.78.1",
     "@earendil-works/pi-ai": "0.78.1",
     "@earendil-works/pi-coding-agent": "0.78.1",
-    "ts-json-schema-generator": "^2.3.0"
+    "typescript": "^5.7.0"
   }
 }
