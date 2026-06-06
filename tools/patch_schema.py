@@ -1,17 +1,19 @@
-"""Inject stable class-name titles into the generated JSON Schema.
+"""Inject stable class-name titles into the generated JSON Schema, and drop the
+closed-object constraint, between the TS->schema and schema->Pydantic hops.
 
 ts-json-schema-generator emits pi's event unions as anonymous inline objects, so
-datamodel-codegen names the resulting classes positionally
-(``AgentSessionEvent1``, ``AgentSessionEvent2``, ...) — ugly, and unstable
-because the numbers track *array order*. We give each union member a ``title``
-derived from its ``type`` discriminant const, so ``datamodel-codegen
---use-title-as-name`` produces stable names keyed on the literal
-(``tool_execution_start`` -> ``ToolExecutionStartEvent``), regardless of order.
+datamodel-codegen names the resulting classes positionally (``AgentSessionEvent1``
+…) — ugly, and unstable because the numbers track *array order*. We give each
+union member a ``title`` derived from its ``type`` discriminant, so
+``datamodel-codegen --use-title-as-name`` produces stable names keyed on the
+literal (``tool_execution_start`` -> ``ToolExecutionStartEvent``), regardless of
+order. We also strip ``additionalProperties: false`` so models are not
+``extra='forbid'``: pi emits fields its own TS types omit (partialArgs/streamIndex
+on tool-call blocks), which forbidding would reject.
 
 This is a Python-side codegen concern, so it lives here and not in the JS
-generator: the committed handoff schema (``schema/agent-session.schema.json``)
-stays faithful/raw; this writes a derived, build-only patched schema that feeds
-datamodel-codegen.
+generator: the committed handoff schema (``schema/pi-rpc.schema.json``) stays
+faithful/raw; this writes a derived, build-only patched schema.
 
 Usage: python tools/patch_schema.py <in.schema.json> <out.schema.json>
 """
@@ -23,8 +25,8 @@ import re
 import sys
 
 # Per-union (prefix, suffix) wrapped around PascalCase(<type const>). The event
-# unions get an `Event` suffix; AssistantMessageEvent's consts are generic
-# (start/done/error/text_delta...) and would collide or read badly bare, so they
+# union gets an `Event` suffix; AssistantMessageEvent's consts are generic
+# (start/done/error/text_delta…) and would collide or read badly bare, so they
 # get an `AssistantMessage` prefix instead.
 NAMING: dict[str, tuple[str, str]] = {
     "AgentSessionEvent": ("", "Event"),
@@ -32,37 +34,17 @@ NAMING: dict[str, tuple[str, str]] = {
 }
 DEFAULT = ("", "Event")
 
-# Some value enums are authored inline in pi's TS (no named type), so they have
-# no title to carry through and datamodel-codegen names them positionally
-# (Reason, Reason2, Reason3). Name them explicitly, keyed on (owning variant's
-# `type` const, property name). Identical (const-agnostic) value sets that share
-# one name — e.g. the compaction reason on both start and end — collapse to a
-# single enum class. Named TS enums (StopReason, ThinkingLevel, ...) are left
-# alone; they already carry their name.
+# Inline value enums pi authors without a named type, keyed on (owning variant's
+# `type` const, property name). Several distinct `reason` fields would otherwise
+# collide into Reason/Reason2/Reason3; identical value sets sharing one name
+# collapse to a single enum class. Named TS enums (StopReason, ThinkingLevel, …)
+# already carry their name and are left alone.
 ENUM_NAMES: dict[tuple[str, str], str] = {
     ("compaction_start", "reason"): "CompactionReason",
     ("compaction_end", "reason"): "CompactionReason",
     ("done", "reason"): "AssistantFinishReason",
     ("error", "reason"): "AssistantErrorReason",
 }
-
-
-def strip_additional_properties_false(node) -> int:
-    """Remove every ``additionalProperties: false`` so datamodel-codegen does not
-    emit ``extra='forbid'`` models. pi's stdout carries fields its own TS types
-    omit (e.g. partialArgs/streamIndex on tool-call blocks), so forbidding would
-    make pi's real output unparseable. Returns how many were removed."""
-    n = 0
-    if isinstance(node, dict):
-        if node.get("additionalProperties") is False:
-            node.pop("additionalProperties")
-            n += 1
-        for v in node.values():
-            n += strip_additional_properties_false(v)
-    elif isinstance(node, list):
-        for v in node:
-            n += strip_additional_properties_false(v)
-    return n
 
 
 def pascal(s: str) -> str:
@@ -78,6 +60,22 @@ def const_of(member: dict) -> str | None:
     if isinstance(enum, list) and len(enum) == 1:
         return enum[0]
     return None
+
+
+def strip_additional_properties_false(node) -> int:
+    """Remove every ``additionalProperties: false`` so generated models inherit
+    pydantic's permissive default instead of ``extra='forbid'``. Returns count."""
+    n = 0
+    if isinstance(node, dict):
+        if node.get("additionalProperties") is False:
+            node.pop("additionalProperties")
+            n += 1
+        for v in node.values():
+            n += strip_additional_properties_false(v)
+    elif isinstance(node, list):
+        for v in node:
+            n += strip_additional_properties_false(v)
+    return n
 
 
 def title_inline_enums(member: dict, const: str) -> int:

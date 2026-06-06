@@ -2,7 +2,7 @@
 #
 # The Python lib (repo root) is the primary artifact. The JS schema generator
 # lives in tools/schema-gen and exists only to emit the shared handoff artifact
-# schema/agent-session.schema.json, which the Python codegen then consumes.
+# schema/pi-rpc.schema.json, which the Python codegen then consumes.
 
 # List available recipes.
 default:
@@ -13,14 +13,14 @@ install:
     cd tools/schema-gen && npm install
     uv sync
 
-# Step 1: pinned pi TS types -> schema/agent-session.schema.json (raw, committed)
+# Step 1: pinned pi TS types -> schema/pi-rpc.schema.json (raw, committed)
 schema:
     cd tools/schema-gen && npm run --silent schema
 
 # Step 2: inject stable class-name titles -> build/patched.schema.json (derived)
 patch:
     mkdir -p build
-    uv run python tools/patch_schema.py schema/agent-session.schema.json build/patched.schema.json
+    uv run python tools/patch_schema.py schema/pi-rpc.schema.json build/patched.schema.json
 
 # Step 3: patched schema -> src/pi_agent_events/models.py (stable names via titles)
 models: patch
@@ -30,7 +30,7 @@ models: patch
       --output-model-type pydantic_v2.BaseModel \
       --use-title-as-name \
       --collapse-root-models \
-      --class-name AgentSessionEvent \
+      --class-name _RpcSchema \
       --disable-timestamp \
       --output src/pi_agent_events/models.py
 
@@ -41,6 +41,12 @@ gen: schema models
 typecheck:
     cd tools/schema-gen && npm run --silent typecheck
 
-# Run the test suite (parses the committed transcript through the models).
+# Run the unit suite (offline; parses the committed fixture through the models).
 test:
-    uv run pytest -q
+    uv run pytest -q -m "not integration"
+
+# Run the live integration test: drive a real `pi --no-extensions --mode rpc`
+# session and parse it (needs pi on PATH + auth; makes a real model call).
+# Streams each parsed model live via --log-cli-level=INFO.
+test-live:
+    PI_RPC_LIVE=1 uv run pytest -s -m integration --log-cli-level=INFO

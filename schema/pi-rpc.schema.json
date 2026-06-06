@@ -1,5 +1,4 @@
 {
-  "$ref": "#/definitions/AgentSessionEvent",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
     "AgentMessage": {
@@ -914,6 +913,65 @@
           "$ref": "#/definitions/ToolResultMessage"
         }
       ]
+    },
+    "PromptCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/definitions/ImageContent"
+          },
+          "type": "array"
+        },
+        "message": {
+          "type": "string"
+        },
+        "streamingBehavior": {
+          "enum": [
+            "steer",
+            "followUp"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "const": "prompt",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "message"
+      ],
+      "type": "object"
+    },
+    "PromptResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "const": "prompt",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "success": {
+          "const": true,
+          "type": "boolean"
+        },
+        "type": {
+          "const": "response",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "command",
+        "success"
+      ],
+      "type": "object"
     },
     "Provider": {
       "anyOf": [

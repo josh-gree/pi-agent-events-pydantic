@@ -9,6 +9,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, RootModel
 
 
+class FieldRpcSchema(RootModel[Any]):
+    root: Any
+
+
 class AgentStartEvent(BaseModel):
     type: Literal['agent_start']
 
@@ -159,6 +163,26 @@ class KnownProvider(Enum):
     xiaomi_token_plan_cn = 'xiaomi-token-plan-cn'
     xiaomi_token_plan_ams = 'xiaomi-token-plan-ams'
     xiaomi_token_plan_sgp = 'xiaomi-token-plan-sgp'
+
+
+class StreamingBehavior(Enum):
+    steer = 'steer'
+    followUp = 'followUp'
+
+
+class PromptCommand(BaseModel):
+    id: str | None = None
+    images: list[ImageContent] | None = None
+    message: str
+    streamingBehavior: StreamingBehavior | None = None
+    type: Literal['prompt']
+
+
+class PromptResponse(BaseModel):
+    command: Literal['prompt']
+    id: str | None = None
+    success: Literal[True]
+    type: Literal['response']
 
 
 class StopReason(Enum):
